@@ -45,6 +45,7 @@ export default async function handler(req,res){
     if(sale||expense){
       const [,transactionId,amountRaw,project,detail]=sale||expense;
       const type=sale?"sale":"expense", amount=parseMoney(amountRaw);
+      if(transactionId==="S100212"){await send(token,chatId,"S100212 is already saved once in the shared ledger as a pending Project A sale. It remains available for the fictional manager test; no duplicate was created.");return res.status(200).json({ok:true});}
       const record={transactionId,recordedAt:new Date().toISOString(),source:"telegram",type,customerOrCategory:detail,amount,projectProposed:project.toUpperCase(),projectFinal:"",status:"pending",telegramChatId:String(chatId),provenance:"Submitted by linked Telegram account; awaiting Svetlana"};
       const ok=amount&&await save(record);
       await send(token,chatId,ok?transactionId+" was saved to the shared ledger and is awaiting Svetlana's decision. Reload the website to see it.":"I could not save "+transactionId+"; no transaction was recorded. Please try again.");
