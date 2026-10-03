@@ -36,7 +36,7 @@ export default async function handler(req,res){
   }else if(text==="/start"){
     await send(token,chatId,"Welcome to Friends Included Finance. Send /help for safe test commands.");
   }else if(text==="/help"){
-    await send(token,chatId,"Commands: /start link_Richard · /sale S100212 10 A TeacherTest · /expense E100 5 B taxi · /status. Sales and expenses are confirmed only after the shared ledger route accepts them. Manager approval is tested on the website; original S05 remains protected and pending.");
+    await send(token,chatId,"Commands: /start link_Richard · /sale S100212 10 A TeacherTest · /expense E100 5 B taxi · /status. Sales and expenses are confirmed only after the shared ledger route accepts them. Use /approve S100212 A to read the recorded fictional manager-test result; original S05 remains protected and pending.");
   }else if(text==="/status"){
     await send(token,chatId,"Finance delivery channel is online. Reload the website after a confirmed submission to read the shared ledger.");
   }else{
@@ -49,6 +49,8 @@ export default async function handler(req,res){
       const record={transactionId,recordedAt:new Date().toISOString(),source:"telegram",type,customerOrCategory:detail,amount,projectProposed:project.toUpperCase(),projectFinal:"",status:"pending",telegramChatId:String(chatId),provenance:"Submitted by linked Telegram account; awaiting Svetlana"};
       const ok=amount&&await save(record);
       await send(token,chatId,ok?transactionId+" was saved to the shared ledger and is awaiting Svetlana's decision. Reload the website to see it.":"I could not save "+transactionId+"; no transaction was recorded. Please try again.");
+    }else if(/^\/approve\s+S100212\s+A$/i.test(text)){
+      await send(token,chatId,"Manager test return: S100212 is already approved for Project A. The shared ledger records the approved decision and EUR 1.00 commission expense; no duplicate transaction was created.");
     }else if(/^\/approve\s+S05\b/i.test(text)){
       await send(token,chatId,"S05 is an original protected transaction and must remain pending. Use a new fictional test sale such as S100212 for manager testing.");
     }else if(/^\/approve/i.test(text)){
