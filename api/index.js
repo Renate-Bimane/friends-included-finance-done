@@ -100,7 +100,7 @@ async function summary() {
 export default async function handler(req,res) {
   try {
     if (req.method === 'GET' && req.url.includes('summary')) return json(res,200,await summary());
-    if (req.method === 'POST' && req.url.includes('setup-telegram-webhook')) {
+    if (req.url.includes('setup-telegram-webhook')) {
       const target = `${process.env.APP_BASE_URL}/api/telegram`;
       const r = await fetch(`https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/setWebhook`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({url:target}) });
       const body = await r.json(); if (!body.ok) throw new Error(body.description || 'Telegram webhook setup failed');
