@@ -118,6 +118,13 @@ export default async function handler(req,res) {
       if (data.status === 'overhead_allocated') await deliver(data);
       return json(res,201,{ok:true,transaction:data});
     }
+    if (req.url.includes('link')) {
+      if (body.actor !== 'Svetlana') throw new Error('Only Svetlana may perform manager test linking.');
+      if (!['Richard','Anastasia','Jean-Claude','Kevin'].includes(body.employee)) throw new Error('Only non-manager fictional employees may be linked.');
+      if (!/^\\d{4,20}$/.test(String(body.telegramId || ''))) throw new Error('Enter the numeric Telegram user ID returned by /whoami.');
+      const { data, error } = await sb().from('employees').update({telegram_user_id:String(body.telegramId)}).eq('name',body.employee).select().single();
+      if (error) throw error; return json(res,200,{ok:true,employee:data.name,message:`Linked Telegram account to ${data.name}.`});
+    }
     if (req.url.includes('decision')) {
       if (body.actor !== 'Svetlana') throw new Error('Only Svetlana may approve or correct a transaction.');
       const { data: manager } = await sb().from('employees').select('*').eq('name','Svetlana').single();
