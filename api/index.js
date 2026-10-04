@@ -122,5 +122,5 @@ export default async function handler(req,res) {
     }
     if (req.url.includes('retry')) { const { data,error }=await sb().from('transactions').select('*').eq('reference',body.reference).single(); if(error)throw error; await deliver(data); return json(res,200,{ok:true}); }
     return json(res,404,{error:'Unknown route'});
-  } catch (e) { return json(res,400,{ok:false,error:e.message || String(e)}); }
+  } catch (e) { console.error('Friends Included API error:', e); return json(res,400,{ok:false,error:e.message || String(e)}); }
 }
