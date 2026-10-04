@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 
-const names = ['Richard Darling','Anastasia Ferrari','Jean-Claude Bērziņš'];
+const names = ['Richard','Anastasia','Jean-Claude'];
 const bot = (token, chat, text) => fetch(`https://api.telegram.org/bot${token}/sendMessage`, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({chat_id:chat,text})});
 const reply = async (token, chat, text) => { const r=await bot(token,chat,text); if(!r.ok) throw new Error(await r.text()); };
 
@@ -22,11 +22,11 @@ export default async function handler(req,res) {
     if(sale) {
       if(!names.includes(employee.name)) { await reply(token,chatId,'Only a salesperson can submit a sale.'); return res.status(200).json({ok:true}); }
       const [,reference,amount,project,customer,description,richard,anastasia,jean]=sale;
-      const r=await fetch(`${process.env.APP_BASE_URL}/api/transaction`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({employee:employee.name,source:'telegram',chatId,reference,kind:'sale',amount,project,customer:customer.trim(),description:description.trim(),splits:{'Richard Darling':richard,'Anastasia Ferrari':anastasia,'Jean-Claude Bērziņš':jean}})});
+      const r=await fetch(`${process.env.APP_BASE_URL}/api/transaction`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({employee:employee.name,source:'telegram',chatId,reference,kind:'sale',amount,project,customer:customer.trim(),description:description.trim(),splits:{'Richard':richard,'Anastasia':anastasia,'Jean-Claude':jean}})});
       const body=await r.json(); await reply(token,chatId,body.ok?`${reference} recorded: €${amount}, Project ${project}, Pending approval.`:`Could not record ${reference}: ${body.error||body.message}`); return res.status(200).json({ok:true});
     }
     if(expense) {
-      if(employee.name!=='Kevin von Whatever') { await reply(token,chatId,'Only Kevin can submit an expense.'); return res.status(200).json({ok:true}); }
+      if(employee.name!=='Kevin') { await reply(token,chatId,'Only Kevin can submit an expense.'); return res.status(200).json({ok:true}); }
       const [,reference,amount,proposedProject,description,category]=expense;
       const r=await fetch(`${process.env.APP_BASE_URL}/api/transaction`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({employee:employee.name,source:'telegram',chatId,reference,kind:'expense',amount,proposedProject,description:description.trim(),category})});
       const body=await r.json(); await reply(token,chatId,body.ok?`${reference} recorded: €${amount}, proposed ${proposedProject}. ${proposedProject==='overhead'?'Company overhead allocated.':'Awaiting allocation.'}`:`Could not record ${reference}: ${body.error||body.message}`); return res.status(200).json({ok:true});
