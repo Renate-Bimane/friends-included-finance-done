@@ -89,7 +89,9 @@ async function summary() {
   for (const t of rows) {
     if (t.kind === 'expense') { out.company.expenses += Number(t.amount); if (['A','B'].includes(t.final_project)) out[t.final_project].expenses += Number(t.amount); continue; }
     if (t.status !== 'approved') continue;
-    const p = t.final_project || t.project; out.company.income += Number(t.amount); out[p].income += Number(t.amount);
+    const p = t.final_project || t.project;
+    if (!['A','B'].includes(p)) continue;
+    out.company.income += Number(t.amount); out[p].income += Number(t.amount);
     for (const [name,col] of [['Richard Darling','commission_richard'],['Anastasia Ferrari','commission_anastasia'],['Jean-Claude Bērziņš','commission_jean_claude']]) { const v=Number(t[col]); out.commissions[name]+=v; out.company.commissions+=v; out[p].commissions+=v; }
   }
   for (const key of ['company','A','B']) out[key].result = euros(out[key].income - out[key].commissions - out[key].expenses);
